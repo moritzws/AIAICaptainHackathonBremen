@@ -1,25 +1,28 @@
 import streamlit as st
 from openai import OpenAI
+import os
 
 # Show title and description.
 st.title("💬HanseGPT Assistant")
 st.write()
 
-# Ask user for their OpenAI API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 
-# https://your_app.streamlit.app/?api_key=1
+# Usage: https://your_app.streamlit.app/?api_key=1
+# Locally you can store your openapi_key variable in .streamlit/secrets.toml
+# For more details see https://docs.streamlit.io/develop/concepts/connections/secrets-management
+
 if st.query_params.get("api_key"):
     openai_api_key = st.query_params["api_key"]
 else:
-    openai_api_key = st.secrets["openapi_key"]
+    try:
+        openai_api_key = st.secrets["openapi_key"]
+    except (KeyError, AttributeError):
+        openai_api_key = None
 
 if not openai_api_key:
     openai_api_key = st.text_input("OpenAI API Key", type="password")
     st.info("Please add your OpenAI API key to continue.", icon="🗝️")
 else:
-
     # Dropdown menu for role selection
     roles = ["Verwaltung", "Filiale", "Presse", "Rechtsabteilung"]
     selected_role = st.selectbox("Wo bei Rossman arbeitest du", roles)

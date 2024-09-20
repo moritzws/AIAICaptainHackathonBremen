@@ -1,8 +1,10 @@
-# 💬 Chatbot template
+# 💬 AI AI Bremen
 
-A simple Streamlit app that shows how to build a chatbot using OpenAI's GPT-3.5.
-
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-template.streamlit.app/)
+Description
+### Link
+- https://bremen.streamlit.app/
+### Magic Link including your own API key
+- https://bremen.streamlit.app/?api_key=<your_open_ai_api_key>
 
 ### How to run it on your own machine
 
