@@ -97,3 +97,9 @@ else:
                 data=[{"lat": selected_location[0], "lon": selected_location[1]}],
                 zoom=10,
             )
+    
+    with st.sidebar:
+        st.header("Admin View")
+        st.write("""
+        Hier kannst du die Datenbank verwalten.
+        """)
