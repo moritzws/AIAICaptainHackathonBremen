@@ -108,7 +108,7 @@ def get_summary_chain(llm):
     Erstelle eine kurze Zusammenfassung, warum der Mitarbeiter bei der Anfrage helfen kann. Schreibe nur einen Satz,
     maximal zwei. Der Satz soll grammatisch korrekt und vollständig sein. Gehe eher darauf ein, was der Mitarbeiter
     macht und von welchen Themen er Kenntnisse hat. Wiederhole nicht, auch nicht umschrieben, die Anfrage.
-    Nenne den Mitarbeiter nur beim Vornamen.
+    Nenne den Mitarbeiter nur beim Vornamen. Entferne alle Zeilenumbrüche und vorangestellte Leerzeichen.
 
     Anfrage: {query}
     Vorname: {first_name}
@@ -140,7 +140,7 @@ def get_summary(summary_chain, query, employee_data):
 
 
 def get_output_prompt_for_one_employee():
-    template = "{first_name} {last_name}, {job}\nMail: {mail}\nTelefon: {phone}\n{summary}"
+    template = "{first_name} {last_name}, {job}\nMail: {mail}\nTelefon: {phone}\n{summary}"""
     output_prompt = PromptTemplate(
         input_variables=["first_name", "last_name", "job", "mail", "phone", "summary"],
         template=template
@@ -156,7 +156,7 @@ def get_output(output_prompt, employee_data, summary):
         job=employee_data.get("position"),
         mail=employee_data.get("mail"),
         phone=employee_data.get("telefon"),
-        summary=summary["text"]
+        summary=summary["text"].replace("\n", "")
     )
     return output
 
