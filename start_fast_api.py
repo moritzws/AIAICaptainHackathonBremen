@@ -1,7 +1,8 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from pydantic import BaseModel
 from chatbot.chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
-                             get_summary_chain, get_summary, get_output, get_personal_ids_for_query)
+                             get_summary_chain, get_summary, get_output, get_personal_ids_for_query,
+                             get_image_description)
 import os
 from langchain_openai import OpenAI
 import requests
@@ -88,6 +89,14 @@ def process_query(query, vector_store, summary_chain, output_prompt):
     final_output = ("Die folgenden Mitarbeiter können dir behilflich sein: \n"
                     + "\n".join(outputs))
     return final_output
+
+
+def process_image_query(query, image_path, vector_store, summary_chain, output_prompt):
+    with open(image_path, "rb") as image_file:
+        image_data = image_file.read()
+    image_description = get_image_description(image_data)
+
+    process_query(image_description + " " + query.input_text, vector_store, summary_chain, output_prompt)
 
 
 if __name__ == "__main__":

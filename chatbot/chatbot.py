@@ -5,6 +5,7 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 import requests
+import openai
 
 db_url = "https://gpt.hansehart.de/api/service"
 
@@ -153,5 +154,14 @@ def get_output(output_prompt, employee_data, summary):
         summary=summary["text"]
     )
     return output
+
+
+def get_image_description(image_data):
+    response = openai.Image.create(
+        file=image_data,
+        model="gpt-4-vision"
+    )
+    return response["choices"][0]["text"]
+
 
 
