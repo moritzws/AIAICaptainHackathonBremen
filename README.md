@@ -1,6 +1,6 @@
-# 💬 AI AI Bremen
+# 💬 Hackathon AI AI Bremen 2024
 
-## FastAPI client
+## FastAPI backend for HanseGPT RossConnect App
 ### How to run it on your own machine
 1. Install the requirements
    ```
