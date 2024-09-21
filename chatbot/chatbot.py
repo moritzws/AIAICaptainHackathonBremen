@@ -1,12 +1,10 @@
 import langchain
-import pandas as pd
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 import requests
-import os
 
 db_url = "https://gpt.hansehart.de/api/service"
 
