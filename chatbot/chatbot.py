@@ -140,9 +140,7 @@ def get_summary(summary_chain, query, employee_data):
 
 
 def get_output_prompt_for_one_employee():
-    template = """
-    {first_name} {last_name}, {job}\nMail: {mail}\nTelefon: {phone}\n{summary}
-    """
+    template = "{first_name} {last_name}, {job}\nMail: {mail}\nTelefon: {phone}\n{summary}"
     output_prompt = PromptTemplate(
         input_variables=["first_name", "last_name", "job", "mail", "phone", "summary"],
         template=template

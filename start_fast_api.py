@@ -87,8 +87,7 @@ def process_query(query, vector_store, summary_chain, output_prompt):
         summary = get_summary(summary_chain, query, employee_data)
         output = get_output(output_prompt, employee_data, summary)
         outputs.append(output)
-    final_output = ("Die folgenden Mitarbeiter können dir behilflich sein: \n"
-                    + "\n".join(outputs))
+    final_output = ("Die folgenden Mitarbeiter können dir behilflich sein:\n" + "\n".join(outputs))
     return final_output
 
 
