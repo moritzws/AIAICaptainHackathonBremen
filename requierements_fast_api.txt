@@ -1,5 +1,6 @@
+langchain
 langchain-chroma
 langchain-openai
 pandas
 openpyxl
-chromadb
+chromadb==0.5.3
