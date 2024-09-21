@@ -10,6 +10,7 @@
    ```
    OPENAI_API_KEY="your_open_ai_api_key"
    DB_TOKEN="database_usage_token"
+   IMGBB_KEY="imgbb_usage_token"
    ```
 3. Run the app
    ```

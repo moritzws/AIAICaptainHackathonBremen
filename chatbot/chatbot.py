@@ -1,3 +1,4 @@
+import os
 import langchain
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
@@ -8,6 +9,7 @@ import requests
 from openai import OpenAI
 
 db_url = "https://gpt.hansehart.de/api/service"
+imgbb_url = "https://api.imgbb.com/1/upload"
 
 def setup_embedding_model():
     model = "text-embedding-3-large"
@@ -44,6 +46,7 @@ def get_personal_ids_for_query(query, vector_store):
             break
 
     ids = [document.metadata.get("personal_id") for document in documents]
+    ids = list(dict.fromkeys(ids))
     return ids
 
 
@@ -160,7 +163,14 @@ def get_output(output_prompt, employee_data, summary):
 
 def get_image_description(image_data):
     vision_model = OpenAI()
-    image_url = "https://as1.ftcdn.net/v2/jpg/05/77/57/36/1000_F_577573624_giM5eaasMgUxbuyB2QanQcchnqBkzEb0.jpg"
+    image_response = requests.post(
+        "https://api.imgbb.com/1/upload",
+        files={'image': image_data},
+        data={'key': os.environ["IMGBB_KEY"], "expiration": 120}
+    )
+    image_url = image_response.json()["data"]["url"]
+    #image_url = "https://as1.ftcdn.net/v2/jpg/05/77/57/36/1000_F_577573624_giM5eaasMgUxbuyB2QanQcchnqBkzEb0.jpg"
+
     response = vision_model.chat.completions.create(
         model='gpt-4o',
         messages=[
