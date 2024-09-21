@@ -72,7 +72,7 @@ def process_query(query, vector_store, summary_chain, output_prompt, exclude_ids
     personal_ids = get_personal_ids_for_query(query, vector_store, exclude_ids)
     if personal_ids == []:
         return ("Damit kann ich dir leider nicht weiterhelfen. Stelle, eine Frage im Bezug zu Personen unseres"
-                + " Unternehmens.")
+                + " Unternehmens."), []
     for personal_id in personal_ids:
         employee_data = requests.get(f"{db_url}/receive/person?id={personal_id}",
                                      headers={"Authorization": f"Bearer {os.environ['DB_TOKEN']}"}).json()
