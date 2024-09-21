@@ -49,10 +49,10 @@ async def ask_bot(input_query: BotInput):
 
         # Call OpenAI GPT-4 model with vision capabilities
         query = input_query.input_text
-        result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm)
+        result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, exclude_ids)
         return {"result_text": result, "personal_ids": []}
     else:
-        result_text = process_query(input_query.input_text, vector_store, summary_chain, output_prompt)
+        result_text = process_query(input_query.input_text, vector_store, summary_chain, output_prompt, exclude_ids)
         return {"result_text": result_text, "personal_ids": []}
 
 
@@ -68,11 +68,11 @@ async def update_vector_store(update_input: VectorStoreUpdateInput):
         return {"status": "Failed to trigger update", "error": str(e)}
 
 
-def process_query(query, vector_store, summary_chain, output_prompt):
+def process_query(query, vector_store, summary_chain, output_prompt, exclude_ids):
     outputs = []
-    personal_ids = get_personal_ids_for_query(query, vector_store)
+    personal_ids = get_personal_ids_for_query(query, vector_store, exclude_ids)
     if personal_ids == []:
-        return ("Damit kann ich dir leider nicht weiterhelfen. Stelle eine Frage im Bezug zu Personen unseres"
+        return ("Damit kann ich dir leider nicht weiterhelfen. Stelle, eine Frage im Bezug zu Personen unseres"
                 + " Unternehmens.")
     for personal_id in personal_ids:
         employee_data = requests.get(f"{db_url}/receive/person?id={personal_id}",
@@ -84,11 +84,11 @@ def process_query(query, vector_store, summary_chain, output_prompt):
     return final_output, personal_ids
 
 
-def process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm):
+def process_image_query(query, image_data, vector_store, summary_chain, output_prompt, exclude_ids):
     image_description = get_image_description(image_data)
     if not query:
         query = "Welche Person kann mir bei dem beschriebenen Sachverhalt helfen?"
-    return process_query(image_description + " " + query, vector_store, summary_chain, output_prompt)
+    return process_query(image_description + " " + query, vector_store, summary_chain, output_prompt, exclude_ids)
 
 
 if __name__ == "__main__":
