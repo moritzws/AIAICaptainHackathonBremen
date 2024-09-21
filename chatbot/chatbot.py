@@ -32,7 +32,7 @@ def setup_vector_store(embedding_model, db_url, db_token):
     return vector_store
 
 
-def get_personal_ids_for_query(query, vector_store):
+def get_personal_ids_for_query(query, vector_store, exclude_ids):
     #documents = vector_store.similarity_search(query.input_text, k=3)
     documents = []
 
@@ -42,7 +42,7 @@ def get_personal_ids_for_query(query, vector_store):
         return []
     docs, scores = zip(*vector_store.similarity_search_with_score(query))
     for doc, score in zip(docs, scores):
-        if score < 1.5:
+        if score < 1.5 and doc.metadata.get("personal_id") not in exclude_ids:
             documents.append(doc)
         if len(documents) == 3:
             break
