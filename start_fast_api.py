@@ -7,7 +7,7 @@ from langchain_openai import OpenAI
 
 
 class TextInput(BaseModel):
-    input_text: str
+    input_text: str = "Wer kann mir beim Thema IT Security helfen?"
 
 
 # Set OpenAI API key to env variable OPENAI_API_KEY
