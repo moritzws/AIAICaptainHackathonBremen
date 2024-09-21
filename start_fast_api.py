@@ -53,13 +53,14 @@ async def update_vector_store(update_input: VectorStoreUpdateInput):
 def process_query(query, vector_store, summary_chain, output_prompt):
     outputs = []
     personal_ids = get_personal_ids_for_query(query, vector_store)
+    if personal_ids == []:
+        return ("Damit kann ich dir leider nicht weiterhelfen. Stelle eine Frage im Bezug zu Personen unseres"
+                + " Unternehmens.")
     for personal_id in personal_ids:
         employee_data = requests.get(f"{db_url}/receive/person?id={personal_id}",
                                      headers={"Authorization": f"Bearer {os.environ['DB_TOKEN']}"}).json()
-        summary = get_summary(summary_chain, query, employee_data.get("vorname"), employee_data.get("nachname"),
-                              employee_data.get("position"), employee_data.get("beschreibung"))
-        output = get_output(output_prompt, employee_data.get("vorname"), employee_data.get("nachname"),
-                            employee_data.get("position"), summary)
+        summary = get_summary(summary_chain, query, employee_data)
+        output = get_output(output_prompt, employee_data, summary)
         outputs.append(output)
     final_output = ("Die folgenden Mitarbeiter können dir behilflich sein: \n"
                     + "\n".join(outputs))

@@ -32,7 +32,16 @@ def setup_vector_store(embedding_model, db_url, db_token):
 
 
 def get_personal_ids_for_query(query, vector_store):
-    documents = vector_store.similarity_search(query.input_text, k=3)
+    #documents = vector_store.similarity_search(query.input_text, k=3)
+    documents = []
+
+    docs, scores = zip(*vector_store.similarity_search_with_score(query.input_text))
+    for doc, score in zip(docs, scores):
+        if score < 1.5:
+            documents.append(doc)
+        if len(documents) == 3:
+            break
+
     ids = [document.metadata.get("personal_id") for document in documents]
     return ids
 
@@ -111,39 +120,40 @@ def get_summary_chain(llm):
     return summary_chain
 
 
-def get_summary(summary_chain, query, first_name, last_name, job, job_description):
-    summary = summary_chain.invoke(input={"query": query, "first_name": first_name, "last_name": last_name, "job": job,
-                                          "job_description": job_description})
+def get_summary(summary_chain, query, employee_data):
+    summary = summary_chain.invoke(input={"query": query,
+                                          "first_name": employee_data.get("vorname"),
+                                          "last_name": employee_data.get("nachname"),
+                                          "job": employee_data.get("position"),
+                                          "mail": employee_data.get("mail"),
+                                          "telefon": employee_data.get("telefon"),
+                                          "job_description": employee_data.get("beschreibung")
+                                          }
+                                   )
     return summary
 
 
 def get_output_prompt_for_one_employee():
     template = """
-    {first_name} {last_name}, {job}\n{summary}
+    {first_name} {last_name}, {job}\nMail: {mail}\nTelefon: {phone}\n{summary}
     """
     output_prompt = PromptTemplate(
-        input_variables=["first_name", "last_name", "job", "summary"],
-        template=template,
+        input_variables=["first_name", "last_name", "job", "mail", "phone", "summary"],
+        template=template
     )
     return output_prompt
 
 
-def get_output(output_prompt, first_name, last_name, job, summary):
+def get_output(output_prompt, employee_data, summary):
     # Benutze die generierte Zusammenfassung im Prompt
     output = output_prompt.format(
-        first_name=first_name,
-        last_name=last_name,
-        job=job,
+        first_name=employee_data.get("vorname"),
+        last_name=employee_data.get("nachname"),
+        job=employee_data.get("position"),
+        mail=employee_data.get("mail"),
+        phone=employee_data.get("telefon"),
         summary=summary["text"]
     )
     return output
 
-"""
-def main():
-    embedding_model = setup_embedding_model(openai_key)
-    vector_store = setup_vector_store(openai_key)
-
-    query = "wer ist scrum master?"
-    results = vector_store.similarity_search(query, k=3)
-"""
 
