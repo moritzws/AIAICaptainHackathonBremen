@@ -14,11 +14,10 @@ def setup_embedding_model():
     return embedding_model
 
 
-def setup_vector_store(embedding_model):
+def setup_vector_store(embedding_model, db_token):
 
     db_url = "https://gpt.hansehart.de/api/service/receive/persons"
-    token = ""
-    database = requests.get(db_url, headers={"Authorization": f"Bearer {token}"}).json()
+    database = requests.get(db_url, headers={"Authorization": f"Bearer {db_token}"}).json()
     documents = create_documents_from_db(database)
 
     """

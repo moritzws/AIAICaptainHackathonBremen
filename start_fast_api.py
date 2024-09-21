@@ -8,12 +8,14 @@ from langchain_openai import OpenAI
 class TextInput(BaseModel):
     input_text: str
 
+
 # Set OpenAI API key to env variable OPENAI_API_KEY
+# Set your database token to env variable DB_TOKEN="database_usage_token"
 
 app = FastAPI()
 llm = OpenAI()
 embedding_model = setup_embedding_model()
-vector_store = setup_vector_store(embedding_model)
+vector_store = setup_vector_store(embedding_model, db_token=os.environ["DB_TOKEN"])
 summary_chain = get_summary_chain(llm=llm)
 output_prompt = get_output_prompt()
 
