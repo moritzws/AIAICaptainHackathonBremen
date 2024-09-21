@@ -38,6 +38,8 @@ def get_personal_ids_for_query(query, vector_store):
 
     if not isinstance(query, str):
         query = query.input_text
+    if query == "":
+        return []
     docs, scores = zip(*vector_store.similarity_search_with_score(query))
     for doc, score in zip(docs, scores):
         if score < 1.5:
