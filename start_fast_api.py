@@ -10,6 +10,10 @@ class TextInput(BaseModel):
     input_text: str = "Wer kann mir beim Thema IT Security helfen?"
 
 
+class VectorStoreUpdateInput(BaseModel):
+    id: int  # d for database person that should be updated in vector store
+
+
 # Set OpenAI API key to env variable OPENAI_API_KEY
 # Set your database token to env variable DB_TOKEN="database_usage_token"
 
@@ -33,8 +37,9 @@ async def process_text(input_query: TextInput):
 
 
 @app.post("/update_vector_store/")
-async def update_vector_store():
+async def update_vector_store(update_input: VectorStoreUpdateInput):
     try:
+        print(update_input.id)
         # Trigger the update process (e.g., reload documents, re-index, etc.)
         pass
         return {"status": "Vector store update triggered successfully"}
