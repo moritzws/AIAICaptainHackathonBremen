@@ -9,13 +9,9 @@ import requests
 import base64
 
 
-class TextInput(BaseModel):
+class BotInput(BaseModel):
+    input_image: str = None
     input_text: str = "Wer kann mir beim Thema IT Security helfen?"
-
-
-class ImageQuestion(BaseModel):
-    input_image: str
-    input_text: str = None
 
 
 class VectorStoreUpdateInput(BaseModel):
@@ -42,24 +38,20 @@ async def root():
 
 
 @app.post("/ask_bot/")
-async def process_text(input_query: TextInput):
-    result_text = process_query(input_query, vector_store, summary_chain, output_prompt)
-    return {"result_text": result_text}
+async def process_text(input_query: BotInput):
+    if input_query.input_image:
+        try:
+            image_data = base64.b64decode(input_query.input_image)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail="Invalid base64 encoded image.")
 
-
-@app.post("/send-image/")
-async def describe_image(input_query: ImageQuestion):
-    if not input_query.input_image:
-        raise HTTPException(status_code=400, detail="Base64 encoded image is required.")
-    try:
-        image_data = base64.b64decode(input_query.input_image)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail="Invalid base64 encoded image.")
-
-    # Call OpenAI GPT-4 model with vision capabilities
-    query = input_query.input_text
-    result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm)
-    return {"result_text": result}
+        # Call OpenAI GPT-4 model with vision capabilities
+        query = input_query.input_text
+        result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm)
+        return {"result_text": result}
+    else:
+        result_text = process_query(input_query.input_text, vector_store, summary_chain, output_prompt)
+        return {"result_text": result_text}
 
 
 @app.post("/update_vector_store/")
