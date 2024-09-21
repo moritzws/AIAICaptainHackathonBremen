@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from pydantic import BaseModel
 from chatbot.chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
                              get_summary_chain, get_summary, get_output, get_personal_ids_for_query)
@@ -6,12 +6,17 @@ import os
 from langchain_openai import OpenAI
 import requests
 
+
 class TextInput(BaseModel):
     input_text: str = "Wer kann mir beim Thema IT Security helfen?"
 
 
 class VectorStoreUpdateInput(BaseModel):
     id: int  # d for database person that should be updated in vector store
+
+
+class ImageQuestion(BaseModel):
+    additional_text: str = None
 
 
 # Set OpenAI API key to env variable OPENAI_API_KEY
@@ -36,6 +41,24 @@ async def root():
 async def process_text(input_query: TextInput):
     result_text = process_query(input_query, vector_store, summary_chain, output_prompt)
     return {"result_text": result_text}
+
+
+@app.post("/send-image/")
+async def describe_image(additional_text: ImageQuestion, file: UploadFile = File(...)):
+    # Ensure the uploaded file is an image
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image.")
+    try:
+        # Read the image file as binary
+        image_data = await file.read()
+        # Optionally, check the image size if needed (e.g., max size limit)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+        # Call OpenAI GPT-4 model with vision capabilities
+
+    result = 'blub'
+    return {"result_text": result}
 
 
 @app.post("/update_vector_store/")

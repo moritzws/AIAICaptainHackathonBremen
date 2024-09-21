@@ -3,3 +3,4 @@ langchain-chroma
 langchain-openai
 openpyxl
 chromadb
+python-multipart
