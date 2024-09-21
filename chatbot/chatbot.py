@@ -5,6 +5,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
+import requests
 import os
 
 def setup_embedding_model():
@@ -14,9 +15,18 @@ def setup_embedding_model():
 
 
 def setup_vector_store(embedding_model):
+
+    db_url = "https://gpt.hansehart.de/api/service/receive/persons"
+    token = ""
+    database = requests.get(db_url, headers={"Authorization": f"Bearer {token}"}).json()
+    documents = create_documents_from_db(database)
+
+    """
     path_to_xlsx = "/Users/annka/Downloads/KI-HackathonxROSSMANN_Challenge_Ansprechpartner-Chatbot.xlsx"
     df = pd.read_excel(path_to_xlsx)
-    documents = create_documents(df)
+    documents = create_documents_from_df(df)
+    """
+
     vector_store = Chroma(embedding_function=embedding_model)
     vector_store.add_documents(documents=documents)
     return vector_store
@@ -27,13 +37,34 @@ def get_job_description_for_query(query, vector_store):
     return results
 
 
-def create_documents(df):
+def get_personal_ids_for_query(query, vector_store):
+    documents = vector_store.similarity_search(query, k=3)
+    ids = [document.metadata.get("personal_id") for document in documents]
+    return ids
+
+
+def create_documents_from_db(database):
+    documents = []
+    personal_ids = []
+    for employee in database:
+        job_description = employee.get("beschreibung") if employee.get("beschreibung") else ""
+        programs = employee.get("programme") if employee.get("programme") else ""
+        personal_id = employee.get("id")
+
+        description_document = Document(page_content=job_description, metadata={"personal_id": personal_id})
+        job_document = Document(page_content=programs, metadata={"personal_id": personal_id})
+
+        documents.append(job_document)
+        documents.append(description_document)
+    return documents
+
+def create_documents_from_df(df):
     documents = []
     personal_ids = []
     for index, row in df.iterrows():
-        document = Document(page_content=row["Beschreibung der Position und Zuständigkeiten bei Problemen"], metadata={"name":row["Name"], "personal_id": index})
+        document = Document(page_content=row["Beschreibung der Position und Zuständigkeiten bei Problemen"], metadata={"personal_id": index})
         documents.append(document)
-        document = Document(page_content=row.fillna("")["Betreute Programme"], metadata={"name": row["Name"], "personal_id": index})
+        document = Document(page_content=row.fillna("")["Betreute Programme"], metadata={"personal_id": index})
         documents.append(document)
     return documents
 
