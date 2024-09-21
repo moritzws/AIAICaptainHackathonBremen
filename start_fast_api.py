@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from pydantic import BaseModel
-from chatbot.chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
+from chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
                              get_summary_chain, get_summary, get_output, get_personal_ids_for_query,
                              get_image_description)
 import os
@@ -27,6 +27,7 @@ db_url = "https://gpt.hansehart.de/api/service"
 
 app = FastAPI()
 llm = OpenAI()
+vision_model = OpenAI(model="gpt-4o")
 embedding_model = setup_embedding_model()
 vector_store = setup_vector_store(embedding_model, f"{db_url}/receive/persons", os.environ["DB_TOKEN"])
 summary_chain = get_summary_chain(llm=llm)
@@ -45,7 +46,7 @@ async def process_text(input_query: TextInput):
 
 
 @app.post("/send-image/")
-async def describe_image(additional_text: ImageQuestion, file: UploadFile = File(...)):
+async def describe_image(file: UploadFile = File(...)):
     # Ensure the uploaded file is an image
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image.")
@@ -56,9 +57,9 @@ async def describe_image(additional_text: ImageQuestion, file: UploadFile = File
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-        # Call OpenAI GPT-4 model with vision capabilities
-
-    result = 'blub'
+    # Call OpenAI GPT-4 model with vision capabilities
+    query = None #additional_text.additional_text
+    result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm)
     return {"result_text": result}
 
 
@@ -91,12 +92,11 @@ def process_query(query, vector_store, summary_chain, output_prompt):
     return final_output
 
 
-def process_image_query(query, image_path, vector_store, summary_chain, output_prompt):
-    with open(image_path, "rb") as image_file:
-        image_data = image_file.read()
+def process_image_query(query, image_data, vector_store, summary_chain, output_prompt, llm):
     image_description = get_image_description(image_data)
-
-    process_query(image_description + " " + query.input_text, vector_store, summary_chain, output_prompt)
+    if query is None:
+        query = "Welche Person kann mir bei dem beschriebenen Sachverhalt helfen?"
+    return process_query(image_description + " " + query, vector_store, summary_chain, output_prompt)
 
 
 if __name__ == "__main__":

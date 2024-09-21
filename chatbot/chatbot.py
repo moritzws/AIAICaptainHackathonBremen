@@ -5,7 +5,7 @@ from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 import requests
-import openai
+from openai import OpenAI
 
 db_url = "https://gpt.hansehart.de/api/service"
 
@@ -34,7 +34,9 @@ def get_personal_ids_for_query(query, vector_store):
     #documents = vector_store.similarity_search(query.input_text, k=3)
     documents = []
 
-    docs, scores = zip(*vector_store.similarity_search_with_score(query.input_text))
+    if not isinstance(query, str):
+        query = query.input_text
+    docs, scores = zip(*vector_store.similarity_search_with_score(query))
     for doc, score in zip(docs, scores):
         if score < 1.5:
             documents.append(doc)
@@ -157,11 +159,26 @@ def get_output(output_prompt, employee_data, summary):
 
 
 def get_image_description(image_data):
-    response = openai.Image.create(
-        file=image_data,
-        model="gpt-4-vision"
+    vision_model = OpenAI()
+    image_url = "https://as1.ftcdn.net/v2/jpg/05/77/57/36/1000_F_577573624_giM5eaasMgUxbuyB2QanQcchnqBkzEb0.jpg"
+    response = vision_model.chat.completions.create(
+        model='gpt-4o',
+        messages=[
+            {"role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": "Describe the content of this image."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": image_url}
+                    }
+                ]
+             }
+        ]
     )
-    return response["choices"][0]["text"]
+    return response.choices[0].message.content
 
 
 
