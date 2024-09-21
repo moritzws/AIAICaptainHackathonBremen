@@ -12,6 +12,7 @@ import base64
 class BotInput(BaseModel):
     input_image: str = None
     input_text: str = "Wer kann mir beim Thema IT Security helfen?"
+    exclude_ids: list[int] = []
 
 
 class VectorStoreUpdateInput(BaseModel):
@@ -38,7 +39,8 @@ async def root():
 
 
 @app.post("/ask_bot/")
-async def process_text(input_query: BotInput):
+async def ask_bot(input_query: BotInput):
+    print(input_query.exclude_ids)
     if input_query.input_image:
         try:
             image_data = base64.b64decode(input_query.input_image)
