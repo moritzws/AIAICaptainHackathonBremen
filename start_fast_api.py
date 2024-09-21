@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
+from chatbot.chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt_for_one_employee,
                              get_summary_chain, get_summary, get_output, get_personal_ids_for_query)
 import os
 from langchain_openai import OpenAI
