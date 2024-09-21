@@ -48,11 +48,11 @@ async def ask_bot(input_query: BotInput):
 
         # Call OpenAI GPT-4 model with vision capabilities
         query = input_query.input_text
-        result = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, input_query.exclude_ids)
-        return {"result_text": result, "personal_ids": []}
+        result, personal_ids = process_image_query(query, image_data, vector_store, summary_chain, output_prompt, input_query.exclude_ids)
+        return {"result_text": result, "personal_ids": personal_ids}
     else:
-        result_text = process_query(input_query.input_text, vector_store, summary_chain, output_prompt, input_query.exclude_ids)
-        return {"result_text": result_text, "personal_ids": []}
+        result_text, personal_ids = process_query(input_query.input_text, vector_store, summary_chain, output_prompt, input_query.exclude_ids)
+        return {"result_text": result_text, "personal_ids": personal_ids}
 
 
 @app.post("/update_vector_store/")
