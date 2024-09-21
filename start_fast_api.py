@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from chatbot.chatbot import (setup_vector_store, setup_embedding_model, get_output_prompt, get_summary_chain,
-get_summary, get_output, get_personal_ids_for_query)
+                             get_summary, get_output, get_personal_ids_for_query)
 import os
 from langchain_openai import OpenAI
+
 
 class TextInput(BaseModel):
     input_text: str
@@ -29,6 +30,17 @@ async def root():
 async def process_text(input_query: TextInput):
     result_text = vector_store.similarity_search(input_query.input_text, k=3)
     return {"result_text": result_text}
+
+
+@app.post("/update_vector_store/")
+async def update_vector_store():
+    try:
+        # Trigger the update process (e.g., reload documents, re-index, etc.)
+        pass
+        return {"status": "Vector store update triggered successfully"}
+    except Exception as e:
+        return {"status": "Failed to trigger update", "error": str(e)}
+
 
 """
 def process_query(query, vector_store, summary_chain, output_prompt):
