@@ -70,9 +70,11 @@ async def update_vector_store(update_input: VectorStoreUpdateInput):
 def process_query(query, vector_store, summary_chain, output_prompt, exclude_ids):
     outputs = []
     personal_ids = get_personal_ids_for_query(query, vector_store, exclude_ids)
-    if personal_ids == []:
+    if len(personal_ids) == 0 and len(exclude_ids) == 0:
         return ("Damit kann ich dir leider nicht weiterhelfen. Stelle, eine Frage im Bezug zu Personen unseres"
                 + " Unternehmens."), []
+    elif len(personal_ids) == 0 and len(exclude_ids) > 0:
+        return ("Ich habe leider keine weiteren Ergebnisse gefunden."), []
     for personal_id in personal_ids:
         employee_data = requests.get(f"{db_url}/receive/person?id={personal_id}",
                                      headers={"Authorization": f"Bearer {os.environ['DB_TOKEN']}"}).json()
